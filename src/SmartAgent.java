@@ -31,12 +31,12 @@ public class SmartAgent implements Agent
 
 	private String getNextMove()
 	{
-		int col = alphaBetaSearch();
+		int col = alphaBetaSearch(3, currentState, -1000, 1000);
 		
 		return "(DROP " + col + ")";
 	}
 	
-	private int alphaBetaSearch()
+	private int alphaBetaSearch(int depth, State state, int alpha, int beta)
 	{
 		return 1;
 	}
