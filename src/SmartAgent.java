@@ -43,7 +43,7 @@ public class SmartAgent implements Agent
 			nextState.dropAt(i);
 			
 			//Evaluate the state
-			int val = alphaBetaSearch(3, currentState, -1000, 1000);
+			int val = alphaBetaSearch(3, nextState, -1000, 1000);
 			
 			//Update the best
 			if(val > bestVal){

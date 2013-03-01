@@ -54,8 +54,8 @@ public class State {
 	//Check if the cell is empty
 	public boolean isEmpty(int col, int row)
 	{
-		if (col < 0 || row < 0 ||
-			col >= WIDTH || row >= HEIGHT) return false;
+		if (col <= 0 || row <= 0 ||
+			col > WIDTH || row > HEIGHT) return false;
 		long mask = 1;
 		mask = mask << (((row-1) * WIDTH) + (col-1));
 
@@ -75,8 +75,8 @@ public class State {
 	//Check what player holds this position. Returns null if empty
 	public Player getPlayerAt(int col, int row)
 	{
-		if (col < 0 || row < 0 ||
-			col >= WIDTH || row >= HEIGHT) return null;
+		if (col <= 0 || row <= 0 ||
+			col > WIDTH || row > HEIGHT) return null;
 		long mask = 1;
 		mask = mask << (((row-1) * WIDTH) + (col-1));
 		
