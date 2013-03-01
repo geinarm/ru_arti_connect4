@@ -18,22 +18,38 @@ public class SmartAgent implements Agent
 
 	public String nextAction(int lastDrop) {
 		myTurn = !myTurn;
+		if(lastDrop != 0)
+			currentState.dropAt(lastDrop);
 		
 		if(myTurn){
-			currentState.dropAt(role, 4);
 			return getNextMove();
 		}
 		else{
-			currentState.dropAt(Player.RED, lastDrop);
-			return "NPOOP";
+			return "NOOP";
 		}
 	}
 
 	private String getNextMove()
 	{
-		int col = alphaBetaSearch(3, currentState, -1000, 1000);
+		int bestMove = 0;
+		int bestVal = 0;
 		
-		return "(DROP " + col + ")";
+		for(int i : generateLegalMoves(currentState)){
+			//Create the next state
+			State nextState = currentState.nextState();
+			nextState.dropAt(i);
+			
+			//Evaluate the state
+			int val = alphaBetaSearch(3, currentState, -1000, 1000);
+			
+			//Update the best
+			if(val > bestVal){
+				bestVal = val;
+				bestMove = i;
+			}
+		}
+		
+		return "(DROP " + bestMove + ")";
 	}
 	
 	private int alphaBetaSearch(int depth, State state, int alpha, int beta)
@@ -44,8 +60,8 @@ public class SmartAgent implements Agent
 		int best = -1000;
 		for(int i : generateLegalMoves(state)){
 			//Generate next state
-			State next = new State(state);
-			next.dropAt(Player.WHITE, i);
+			State next = state.nextState();
+			next.dropAt(i);
 			
 			int value = -alphaBetaSearch(depth-1, next, -beta, -alpha);
 			
@@ -118,8 +134,4 @@ public class SmartAgent implements Agent
 		return moves;
 	}
 	
-	private boolean isGoal(State state)
-	{
-		return false;
-	}
 }
