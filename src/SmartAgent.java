@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Random;
 
 public class SmartAgent implements Agent
 {
@@ -7,6 +8,7 @@ public class SmartAgent implements Agent
 	private int playclock;
 	private boolean myTurn;
 	private int lastDrop;
+	private Random random = new Random(System.currentTimeMillis());
 	
 	public void init(String role, int playclock) {
 		// TODO Auto-generated method stub
@@ -19,21 +21,25 @@ public class SmartAgent implements Agent
 
 	public String nextAction(int lastDrop) {
 		myTurn = !myTurn;
-		if(lastDrop != 0)
+		if(lastDrop != 0){
 			currentState.dropAt(lastDrop);
+			currentState.whiteTurn = !currentState.whiteTurn; 
+		}
 		
 		if(myTurn){
-			return getNextMove();
+			System.out.println("My turn"); 
+			String move = getNextMove();
+			System.out.println("Move: " + move);
+			return move;
 		}
 		else{
+			System.out.println("Not my turn");
 			return "NOOP";
 		}
 	}
 
 	private String getNextMove()
 	{
-		System.out.println("yo, i need a move");
-		
 		int bestMove = 0;
 		int bestVal = 0;
 		
@@ -43,7 +49,7 @@ public class SmartAgent implements Agent
 			nextState.dropAt(i);
 			
 			//Evaluate the state
-			int val = alphaBetaSearch(3, nextState, -1000, 1000);
+			int val = alphaBetaSearch(6, nextState, -1000, 1000);
 			
 			//Update the best
 			if(val > bestVal){
@@ -52,15 +58,13 @@ public class SmartAgent implements Agent
 			}
 		}
 		
+		System.out.println("Score: " + bestVal);
 		return "(DROP " + bestMove + ")";
 	}
 	
 	private int alphaBetaSearch(int depth, State state, int alpha, int beta)
 	{
-		System.out.println("yo");
-		
-		if(depth <= 0 || state.isTerminal()){
-			System.out.println("yo dawg, returning");
+		if(depth <= 0){
 			return evaluate(state);
 		}
 		
@@ -83,51 +87,21 @@ public class SmartAgent implements Agent
 			}
 		}
 		
-		return 1;
+		return best;
 	}
 	
 	private int evaluate(State state)
 	{
-		int score = 0;
-		// mask:
-		/*****************/
-		/* _ _ _ _ _ _ _ */
-		/* _ _ _ _ _ _ _ */
-		/* _ _ _ _ _ _ _ */
-		/* _ 1 1 _ _ _ _ */
-		/* _ x 1 _ _ _ _ */
-		/* _ _ 1 _ _ _ _ */
-		/*****************/
-		// ...0000110000001000000100
+		int val = 0;
 		
-		// Mask is for x=1 y=1
-		long mask = 0;
-		mask |= 3 << 15; // u,ur
-		mask |= 1 << 9; // r
-		mask |= 1 << 2; // dr
-		
-		long m;
-		
-		int index;
-		for (int col = 0; col < State.WIDTH-1; col++) {
-			for (int row = 0; row < State.HEIGHT-1; row++) {
-				// check if all edges (or just ul,u,ur,r,dr) are same as player in this point
-				index = col + (row * State.WIDTH);
-				
-				// WHITE
-				m = state.white & (mask << (index-8));
-				while ((m=m>>>1) != 0)
-					score += m & 1;
-				
-				// RED
-				m = state.red & (mask << (index-1));
-				// @TODO: fix bits that circle to different row
-				while ((m=m>>>1) != 0)
-					score += m & 1;
-			}
+		for(int c=1; c <= State.WIDTH; c++){
+			for(int r=1; r <= State.HEIGHT; r++){
+				val += state.countAdjacent(c, r, 1, 0);
+				val += state.countAdjacent(c, r, -1, 0);
+			}	
 		}
-		System.out.println("Score: " + score);
-		return score;
+		
+		return val*val;
 	}
 	
 	private ArrayList<Integer> generateLegalMoves(State state)

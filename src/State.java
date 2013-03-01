@@ -87,6 +87,32 @@ public class State {
 		else
 			return null;
 	}
+	
+    public int countAdjacent(int col, int row, int cOffset, int rOffset){
+        Player p = getPlayerAt(col, row);
+        int count = 0;
+        
+        if(p != null){
+        	while(getPlayerAt(col, row) == p){
+        		count ++;
+        		col += cOffset;
+        		row += rOffset;
+        	}
+        }
+        
+        return count;
+    }
+    
+    private boolean inBounds(int col, int row)
+    {
+    	if(col < 1 || col > WIDTH)
+    		return false;
+    	
+    	if(row < 1 || row > HEIGHT)
+    		return false;
+    	
+    	return true;
+    }
 
 	public boolean isTerminal()
 	{
