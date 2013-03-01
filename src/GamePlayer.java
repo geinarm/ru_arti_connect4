@@ -1,12 +1,9 @@
 import java.io.IOException;
+import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.text.DateFormat;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.ArrayList;
 
 
 public class GamePlayer extends NanoHTTPD {
