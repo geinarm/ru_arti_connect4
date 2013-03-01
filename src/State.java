@@ -39,6 +39,8 @@ public class State {
 	//Check if the cell is empty
 	public boolean isEmpty(int col, int row)
 	{
+		if (col < 0 || row < 0 ||
+			col >= WIDTH || row >= HEIGHT) return false;
 		long mask = 1;
 		mask = mask << (((row-1) * WIDTH) + (col-1));
 
@@ -58,6 +60,8 @@ public class State {
 	//Check what player holds this position. Returns null if empty
 	public Player getPlayerAt(int col, int row)
 	{
+		if (col < 0 || row < 0 ||
+			col >= WIDTH || row >= HEIGHT) return null;
 		long mask = 1;
 		mask = mask << (((row-1) * WIDTH) + (col-1));
 		
@@ -67,5 +71,74 @@ public class State {
 			return Player.RED;
 		else
 			return null;
+	}
+
+	public boolean isTerminal(State s, int col)
+	{
+		long location = 1 << (col - 1);
+		long fulltable = -1 >>> (64 - HEIGHT * WIDTH);
+		int row = 0; // Height of the column where lastMove was droped
+		int i, j, c;
+		Player player = null;
+		if ((s.white | s.red) == fulltable)
+			return true;
+		
+		// Find where last disc was placed (row) 
+		while ((location & (white | red)) > 0) {
+			location = location << WIDTH;
+			row++;
+		}
+		location = location >> WIDTH;
+		row--;
+		
+		// Get the player of the previous move
+		player = getPlayerAt(col, row);
+		
+		// HORIZONTAL
+		c = 0;
+		i = col;
+		while (getPlayerAt(--i, row) == player)
+			c++;
+		i = col;
+		while (getPlayerAt(++i, row) == player)
+			c++;
+		
+		if (c >= 4) return true;
+		
+		// VERTICAL
+		c = 0;
+		i = row;
+		while (getPlayerAt(col, --i) == player)
+			c++;
+		i = row;
+		while (getPlayerAt(col, ++i) == player)
+			c++;
+		
+		if (c >= 4) return true;
+		
+		// DIAGONAL /
+		c = 0;
+		i = row;
+		j = col;
+		while (getPlayerAt(++j, ++i) == player)
+			c++;
+		i = row;
+		while (getPlayerAt(--j, --i) == player)
+			c++;
+		
+		if (c >= 4) return true;
+		
+		// DIAGONAL \
+		c = 0;
+		i = row;
+		j = col;
+		while (getPlayerAt(++j, --i) == player)
+			c++;
+		i = row;
+		while (getPlayerAt(--j, ++i) == player)
+			c++;
+		
+		if (c >= 4) return true;
+		return false;
 	}
 }
