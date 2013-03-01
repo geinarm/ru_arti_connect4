@@ -44,6 +44,32 @@ public class UnitTest {
 			System.out.println("COOL");
 		}
 		
+		////////////////
+		// isTerminal //
+		////////////////
+		
+		s = new State();
+		s.dropAt(1);
+		s.dropAt(2);
+		s.dropAt(3);
+
+		// Should not be terminal
+		if (s.isTerminal()){
+			System.out.println("LAME");
+		}
+		else{
+			System.out.println("COOL");
+		}
+		
+		s.dropAt(4);
+		
+		// Should now be termial
+		if (!s.isTerminal()){
+			System.out.println("LAME");
+		}
+		else{
+			System.out.println("COOL");
+		}
 	}
 	
 }
