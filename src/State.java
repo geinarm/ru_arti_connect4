@@ -48,7 +48,7 @@ public class State {
 		System.out.println("Red: " + red);
 		System.out.println("White or Red: " + (white | red));*/
 		
-		if((mask & (white | red)) > 0)
+		if((mask & (white | red)) != 0)
 			return false;
 		
 		return true;

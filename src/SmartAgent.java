@@ -41,10 +41,47 @@ public class SmartAgent implements Agent
 		return 1;
 	}
 	
-	private int evalueate(State state)
+	private int evaluate(State state)
 	{
+		int score = 0;
+		// mask:
+		/*****************/
+		/* _ _ _ _ _ _ _ */
+		/* _ _ _ _ _ _ _ */
+		/* _ _ _ _ _ _ _ */
+		/* _ 1 1 _ _ _ _ */
+		/* _ x 1 _ _ _ _ */
+		/* _ _ 1 _ _ _ _ */
+		/*****************/
+		// ...0000110000001000000100
 		
-		return 0;
+		// Mask is for x=1 y=1
+		long mask = 0;
+		mask |= 3 << 15; // u,ur
+		mask |= 1 << 9; // r
+		mask |= 1 << 2; // dr
+		
+		long m;
+		
+		int index;
+		for (int col = 0; col < State.WIDTH-1; col++) {
+			for (int row = 0; row < State.HEIGHT-1; row++) {
+				// check if all edges (or just ul,u,ur,r,dr) are same as player in this point
+				index = col + (row * State.WIDTH);
+				
+				// WHITE
+				m = state.white & (mask << (index-8));
+				while ((m=m>>>1) != 0)
+					score += m & 1;
+				
+				// RED
+				m = state.red & (mask << (index-1));
+				// @TODO: fix bits that circle to different row
+				while ((m=m>>>1) != 0)
+					score += m & 1;
+			}
+		}
+		return score;
 	}
 	
 	private ArrayList<String> generateLegalMoves(State state)
