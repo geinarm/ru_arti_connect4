@@ -38,6 +38,28 @@ public class SmartAgent implements Agent
 	
 	private int alphaBetaSearch(int depth, State state, int alpha, int beta)
 	{
+		if(depth <= 0)
+			return evaluate(state);
+		
+		int best = -1000;
+		for(int i : generateLegalMoves(state)){
+			//Generate next state
+			State next = new State(state);
+			next.dropAt(Player.WHITE, i);
+			
+			int value = -alphaBetaSearch(depth-1, next, -beta, -alpha);
+			
+			//Update best value
+			if(value > best)
+				best = value;
+			
+			//Beta cutoff
+			if(best > alpha){
+				alpha = best;
+				if(alpha >= beta) break;
+			}
+		}
+		
 		return 1;
 	}
 	
@@ -84,13 +106,13 @@ public class SmartAgent implements Agent
 		return score;
 	}
 	
-	private ArrayList<String> generateLegalMoves(State state)
+	private ArrayList<Integer> generateLegalMoves(State state)
 	{
-		ArrayList<String> moves = new ArrayList<String>();
+		ArrayList<Integer> moves = new ArrayList<Integer>();
 		
 		for(int i = 1; i <= State.WIDTH; i++){
 			if(state.isEmpty(i, State.HEIGHT))
-				moves.add("(DROP "+ i +")");
+				moves.add(i);
 		}
 		
 		return moves;
