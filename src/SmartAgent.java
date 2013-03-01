@@ -6,6 +6,7 @@ public class SmartAgent implements Agent
 	private Player role;
 	private int playclock;
 	private boolean myTurn;
+	private int lastDrop;
 	
 	public void init(String role, int playclock) {
 		// TODO Auto-generated method stub
@@ -31,6 +32,8 @@ public class SmartAgent implements Agent
 
 	private String getNextMove()
 	{
+		System.out.println("yo, i need a move");
+		
 		int bestMove = 0;
 		int bestVal = 0;
 		
@@ -54,8 +57,12 @@ public class SmartAgent implements Agent
 	
 	private int alphaBetaSearch(int depth, State state, int alpha, int beta)
 	{
-		if(depth <= 0)
+		System.out.println("yo");
+		
+		if(depth <= 0 || state.isTerminal()){
+			System.out.println("yo dawg, returning");
 			return evaluate(state);
+		}
 		
 		int best = -1000;
 		for(int i : generateLegalMoves(state)){
@@ -119,6 +126,7 @@ public class SmartAgent implements Agent
 					score += m & 1;
 			}
 		}
+		System.out.println("Score: " + score);
 		return score;
 	}
 	

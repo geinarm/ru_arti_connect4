@@ -6,6 +6,7 @@ public class State {
 	long white;			//Bitmask holding whites positions
 	long red;			//Bitmask holding red positions
 	boolean whiteTurn;
+	int lastDrop;
 	
 	State()
 	{
@@ -34,6 +35,8 @@ public class State {
 	//Add a disk to the game board for the given player in the given column
 	public void dropAt(int col)
 	{
+		lastDrop = col;
+		
 		//Shift the bitmask to the column
 		long mask = 1 << (col-1);
 		
@@ -85,14 +88,14 @@ public class State {
 			return null;
 	}
 
-	public boolean isTerminal(State s, int col)
+	public boolean isTerminal()
 	{
-		long location = 1 << (col - 1);
+		long location = 1 << (lastDrop - 1);
 		long fulltable = -1 >>> (64 - HEIGHT * WIDTH);
 		int row = 0; // Height of the column where lastMove was droped
 		int i, j, c;
 		Player player = null;
-		if ((s.white | s.red) == fulltable)
+		if ((white | red) == fulltable)
 			return true;
 		
 		// Find where last disc was placed (row) 
@@ -104,14 +107,14 @@ public class State {
 		row--;
 		
 		// Get the player of the previous move
-		player = getPlayerAt(col, row);
+		player = getPlayerAt(lastDrop, row);
 		
 		// HORIZONTAL
 		c = 0;
-		i = col;
+		i = lastDrop;
 		while (getPlayerAt(--i, row) == player)
 			c++;
-		i = col;
+		i = lastDrop;
 		while (getPlayerAt(++i, row) == player)
 			c++;
 		
@@ -120,10 +123,10 @@ public class State {
 		// VERTICAL
 		c = 0;
 		i = row;
-		while (getPlayerAt(col, --i) == player)
+		while (getPlayerAt(lastDrop, --i) == player)
 			c++;
 		i = row;
-		while (getPlayerAt(col, ++i) == player)
+		while (getPlayerAt(lastDrop, ++i) == player)
 			c++;
 		
 		if (c >= 4) return true;
@@ -131,7 +134,7 @@ public class State {
 		// DIAGONAL /
 		c = 0;
 		i = row;
-		j = col;
+		j = lastDrop;
 		while (getPlayerAt(++j, ++i) == player)
 			c++;
 		i = row;
@@ -143,7 +146,7 @@ public class State {
 		// DIAGONAL \
 		c = 0;
 		i = row;
-		j = col;
+		j = lastDrop;
 		while (getPlayerAt(++j, --i) == player)
 			c++;
 		i = row;
