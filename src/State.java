@@ -24,9 +24,10 @@ public class State {
 	}
 	
 	//Copies the state and changes the current player 
-	public State nextState()
+	public State nextState(int col)
 	{
 		State s = new State(this);
+		s.dropAt(col);
 		s.whiteTurn = !whiteTurn;
 		
 		return s;
@@ -108,7 +109,7 @@ public class State {
         return count;
     }
     
-    private boolean inBounds(int col, int row)
+    public boolean inBounds(int col, int row)
     {
     	if(col < 1 || col > WIDTH)
     		return false;
@@ -121,6 +122,11 @@ public class State {
 
 	public boolean isTerminal()
 	{
+		if((white & red) != 0){
+			System.err.println("Invalid state");
+			System.exit(0);
+		}
+		
 		//Check if the board is full
         long fulltable = -1 >>> (64 - HEIGHT * WIDTH);
         if ((white | red) == fulltable)
@@ -150,5 +156,26 @@ public class State {
 			return true;
 		
 		return false;
+	}
+	
+	@Override
+	public String toString()
+	{
+		String board = "|";
+		
+		for(int r=HEIGHT; r >= 1; r--){
+			for(int c=1; c <= State.WIDTH; c++){
+				Player p = getPlayerAt(c, r);
+				if(p == Player.WHITE)
+					board += "X";
+				else if(p == Player.RED)
+					board += "O";
+				else
+					board += " ";
+			}
+			board += "|\n|";
+		}
+		
+		return board;
 	}
 }

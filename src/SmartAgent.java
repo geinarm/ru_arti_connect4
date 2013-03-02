@@ -20,8 +20,9 @@ public class SmartAgent implements Agent
 	public String nextAction(int lastDrop) {
 		myTurn = !myTurn;
 		if(lastDrop != 0){
-			currentState.dropAt(lastDrop);
-			currentState.whiteTurn = !currentState.whiteTurn; 
+			currentState = currentState.nextState(lastDrop); 
+			
+			System.out.print(currentState);
 		}
 		
 		if(myTurn){
@@ -43,11 +44,10 @@ public class SmartAgent implements Agent
 		
 		for(int i : generateLegalMoves(currentState)){
 			//Create the next state
-			State nextState = new State(currentState);//currentState.nextState();
-			nextState.dropAt(i);
+			State nextState = currentState.nextState(i);
 			
 			//Evaluate the state
-			int val = alphaBetaSearch(6, nextState, -1000, 1000);
+			int val = -alphaBetaSearch(1, nextState, -1000, 1000);
 			
 			//Update the best
 			if(val > bestVal){
@@ -62,19 +62,16 @@ public class SmartAgent implements Agent
 	
 	private int alphaBetaSearch(int depth, State state, int alpha, int beta)
 	{
-		if(depth <= 0 || state.isTerminal()){
-			/*if(state.whiteTurn)
-				System.out.println("White");
-			else
-				System.out.println("Red");*/
+		if(depth <= 0){
 			return evaluate(state);
 		}
+		if(state.isTerminal())
+			return evaluate(state);
 		
 		int best = -1000;
 		for(int i : generateLegalMoves(state)){
 			//Generate next state
-			State next = state.nextState();
-			next.dropAt(i);
+			State next = state.nextState(i);
 			
 			int value = -alphaBetaSearch(depth-1, next, -beta, -alpha);
 			
@@ -95,13 +92,12 @@ public class SmartAgent implements Agent
 	private int evaluate(State state)
 	{
 		int val = 0;
-		Player player = state.whiteTurn ? Player.WHITE : Player.RED;
 		
 		//Punish long paths
-		if(state.whiteTurn)
-			val -= Long.bitCount(state.white) * 2;
-		else
+		/*if(state.whiteTurn)
 			val -= Long.bitCount(state.red) * 2;
+		else
+			val -= Long.bitCount(state.white) * 2;*/
 		
 		//Check row length
 		int minRowLength = 0;
@@ -110,14 +106,13 @@ public class SmartAgent implements Agent
 			for(int c=1; c <= State.WIDTH; c++){
 				Player p = state.getPlayerAt(c, r);
 				
-				if(p == player){
+				if(p == role){
 					maxRowLength = Math.max(maxRowLength, state.countAdjacent(c, r, 1, 0));
 					maxRowLength = Math.max(maxRowLength, state.countAdjacent(c, r, 0, 1));
 					maxRowLength = Math.max(maxRowLength, state.countAdjacent(c, r, 1, 1));
 					maxRowLength = Math.max(maxRowLength, state.countAdjacent(c, r, 1, -1));
 					if(maxRowLength >= 4){
-						val += 100;
-						break;
+						val = 100;
 					}
 				}
 				else if(p != null){
@@ -126,8 +121,7 @@ public class SmartAgent implements Agent
 					minRowLength = Math.max(minRowLength, state.countAdjacent(c, r, 1, 1));
 					minRowLength = Math.max(minRowLength, state.countAdjacent(c, r, 1, -1));
 					if(minRowLength >= 4){
-						val -= 100;
-						break;
+						val = -100;
 					}
 				}
 			}	
