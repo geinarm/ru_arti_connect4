@@ -41,13 +41,14 @@ public class SmartAgent implements Agent
 	{
 		int bestMove = 0;
 		int bestVal = -1000;
-		
+		if(currentState.isEmpty(4, 1))
+			return "(DROP 4)";
 		for(int i : generateLegalMoves(currentState)){
 			//Create the next state
 			State nextState = currentState.nextState(i);
 			
 			//Evaluate the state
-			int val = -alphaBetaSearch(1, nextState, -1000, 1000);
+			int val = -alphaBetaSearch(6, nextState, -1000, 1000);
 			
 			//Update the best
 			if(val > bestVal){
@@ -63,10 +64,10 @@ public class SmartAgent implements Agent
 	private int alphaBetaSearch(int depth, State state, int alpha, int beta)
 	{
 		if(depth <= 0){
-			return evaluate(state);
+			return evaluate(state, depth);
 		}
 		if(state.isTerminal())
-			return evaluate(state);
+			return evaluate(state, depth);
 		
 		int best = -1000;
 		for(int i : generateLegalMoves(state)){
@@ -89,7 +90,7 @@ public class SmartAgent implements Agent
 		return best;
 	}
 	
-	private int evaluate(State state)
+	private int evaluate(State state, int depth)
 	{
 		int val = 0;
 		
@@ -132,7 +133,7 @@ public class SmartAgent implements Agent
 		
 		//Check next thing
 		
-		return val;
+		return (val-(depth*10));
 	}
 	
 	private ArrayList<Integer> generateLegalMoves(State state)
