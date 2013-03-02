@@ -44,6 +44,25 @@ public class UnitTest {
 			System.out.println("COOL");
 		}
 		
+        s.dropAt(7);
+        s.dropAt(7);
+        s.dropAt(7);
+        s.dropAt(7);
+
+        if(s.countAdjacent(7, 1, 0, 1) != 4){
+            System.out.println("LAME");
+        }
+        else{
+            System.out.println("COOL");
+        }
+        
+        if(s.countAdjacent(7, 4, -1, 0) != 1){
+            System.out.println("LAME");
+        }
+        else{
+            System.out.println("COOL");
+        }
+		
 		////////////////
 		// isTerminal //
 		////////////////

@@ -54,15 +54,9 @@ public class State {
 	//Check if the cell is empty
 	public boolean isEmpty(int col, int row)
 	{
-		if (!inBounds(col, row)) return false;
+		//if (!inBounds(col, row)) return false;
 		long mask = 1;
 		mask = mask << (((row-1) * WIDTH) + (col-1));
-
-		//Debug stuff
-		/*System.out.println("Mask: " + mask);
-		System.out.println("White: " + white);
-		System.out.println("Red: " + red);
-		System.out.println("White or Red: " + (white | red));*/
 		
 		if((mask & (white | red)) != 0)
 			return false;
@@ -94,10 +88,20 @@ public class State {
         int count = 0;
         
         if(p != null){
-        	while(getPlayerAt(col, row) == p){
+            int c = col;
+            int r = row;
+            
+        	while(getPlayerAt(c, r) == p && inBounds(c, r)){
         		count ++;
-        		col += cOffset;
-        		row += rOffset;
+        		c += cOffset;
+        		r += rOffset;
+        	}
+            c = col-cOffset;
+            r = row-rOffset;
+        	while(getPlayerAt(c, r) == p && inBounds(c, r)){
+        		count ++;
+        		c -= cOffset;
+        		r -= rOffset;
         	}
         }
         
@@ -106,10 +110,10 @@ public class State {
     
     private boolean inBounds(int col, int row)
     {
-    	if(col < 1 || col >= WIDTH)
+    	if(col < 1 || col > WIDTH)
     		return false;
     	
-    	if(row < 1 || row >= HEIGHT)
+    	if(row < 1 || row > HEIGHT)
     		return false;
     	
     	return true;
@@ -117,73 +121,34 @@ public class State {
 
 	public boolean isTerminal()
 	{
-		long location = 1 << (lastDrop - 1);
-		long fulltable = -1 >>> (64 - HEIGHT * WIDTH);
-		int row = 0; // Height of the column where lastMove was dropped
-		int i, j, c;
-		Player player = null;
-		if ((white | red) == fulltable)
+		//Check if the board is full
+        long fulltable = -1 >>> (64 - HEIGHT * WIDTH);
+        if ((white | red) == fulltable)
+            return true;		
+		
+        //Check if the last drop is a part of a winning row
+		int col = lastDrop;
+		int row = 1;
+		
+		while(!isEmpty(col, row+1))
+			row ++;
+		
+		//Check right/left
+		if(countAdjacent(col, row, 1, 0) >= 4)
 			return true;
 		
-		// Find where last disc was placed (row) 
-		while ((location & (white | red)) > 0) {
-			location = location << WIDTH;
-			row++;
-		}
-		location = location >> WIDTH;
+		//Check up/down
+		if(countAdjacent(col, row, 0, 1) >= 4)
+			return true;
 		
-		// Get the player of the previous move
-		player = getPlayerAt(lastDrop, row);
+		//Check diagonal /
+		if(countAdjacent(col, row, 1, 1) >= 4)
+			return true;
 		
-		// HORIZONTAL
-		c = 1;
-		i = lastDrop;
-		while (getPlayerAt(--i, row) == player)
-			c++;
-		i = lastDrop;
-		while (getPlayerAt(++i, row) == player)
-			c++;
+		//Check diagonal \
+		if(countAdjacent(col, row, -1, 1) >= 4)
+			return true;
 		
-		System.out.println("Horizontal: " + c);
-		if (c >= 4) return true;
-		
-		// VERTICAL
-		c = 1;
-		i = row;
-		while (getPlayerAt(lastDrop, --i) == player)
-			c++;
-		i = row;
-		while (getPlayerAt(lastDrop, ++i) == player)
-			c++;
-
-		System.out.println("Vertical: " + c);
-		if (c >= 4) return true;
-		
-		// DIAGONAL /
-		c = 1;
-		i = row;
-		j = lastDrop;
-		while (getPlayerAt(++j, ++i) == player)
-			c++;
-		i = row;
-		while (getPlayerAt(--j, --i) == player)
-			c++;
-
-		System.out.println("Diag /: " + c);
-		if (c >= 4) return true;
-		
-		// DIAGONAL \
-		c = 1;
-		i = row;
-		j = lastDrop;
-		while (getPlayerAt(++j, --i) == player)
-			c++;
-		i = row;
-		while (getPlayerAt(--j, ++i) == player)
-			c++;
-
-		System.out.println("diag \\: " + c);
-		if (c >= 4) return true;
 		return false;
 	}
 }

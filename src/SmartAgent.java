@@ -7,8 +7,6 @@ public class SmartAgent implements Agent
 	private Player role;
 	private int playclock;
 	private boolean myTurn;
-	private int lastDrop;
-	private Random random = new Random(System.currentTimeMillis());
 	
 	public void init(String role, int playclock) {
 		// TODO Auto-generated method stub
@@ -41,11 +39,11 @@ public class SmartAgent implements Agent
 	private String getNextMove()
 	{
 		int bestMove = 0;
-		int bestVal = 0;
+		int bestVal = -1000;
 		
 		for(int i : generateLegalMoves(currentState)){
 			//Create the next state
-			State nextState = currentState.nextState();
+			State nextState = new State(currentState);//currentState.nextState();
 			nextState.dropAt(i);
 			
 			//Evaluate the state
@@ -64,7 +62,11 @@ public class SmartAgent implements Agent
 	
 	private int alphaBetaSearch(int depth, State state, int alpha, int beta)
 	{
-		if(depth <= 0){
+		if(depth <= 0 || state.isTerminal()){
+			/*if(state.whiteTurn)
+				System.out.println("White");
+			else
+				System.out.println("Red");*/
 			return evaluate(state);
 		}
 		
@@ -93,15 +95,50 @@ public class SmartAgent implements Agent
 	private int evaluate(State state)
 	{
 		int val = 0;
+		Player player = state.whiteTurn ? Player.WHITE : Player.RED;
 		
-		for(int c=1; c <= State.WIDTH; c++){
-			for(int r=1; r <= State.HEIGHT; r++){
-				val += state.countAdjacent(c, r, 1, 0);
-				val += state.countAdjacent(c, r, -1, 0);
+		//Punish long paths
+		if(state.whiteTurn)
+			val -= Long.bitCount(state.white) * 2;
+		else
+			val -= Long.bitCount(state.red) * 2;
+		
+		//Check row length
+		int minRowLength = 0;
+		int maxRowLength = 0;
+		for(int r=1; r <= State.HEIGHT; r++){
+			for(int c=1; c <= State.WIDTH; c++){
+				Player p = state.getPlayerAt(c, r);
+				
+				if(p == player){
+					maxRowLength = Math.max(maxRowLength, state.countAdjacent(c, r, 1, 0));
+					maxRowLength = Math.max(maxRowLength, state.countAdjacent(c, r, 0, 1));
+					maxRowLength = Math.max(maxRowLength, state.countAdjacent(c, r, 1, 1));
+					maxRowLength = Math.max(maxRowLength, state.countAdjacent(c, r, 1, -1));
+					if(maxRowLength >= 4){
+						val += 100;
+						break;
+					}
+				}
+				else if(p != null){
+					minRowLength = Math.max(minRowLength, state.countAdjacent(c, r, 1, 0));
+					minRowLength = Math.max(minRowLength, state.countAdjacent(c, r, 0, 1));
+					minRowLength = Math.max(minRowLength, state.countAdjacent(c, r, 1, 1));
+					minRowLength = Math.max(minRowLength, state.countAdjacent(c, r, 1, -1));
+					if(minRowLength >= 4){
+						val -= 100;
+						break;
+					}
+				}
 			}	
 		}
 		
-		return val*val;
+		val -= minRowLength;
+		val += maxRowLength;
+		
+		//Check next thing
+		
+		return val;
 	}
 	
 	private ArrayList<Integer> generateLegalMoves(State state)
