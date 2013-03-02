@@ -5,14 +5,12 @@ public class State {
 	
 	long white;			//Bitmask holding whites positions
 	long red;			//Bitmask holding red positions
-	boolean whiteTurn;
 	int lastDrop;
 	
 	State()
 	{
 		white = 0;
 		red = 0;
-		whiteTurn = true;
 	}
 	
 	//Copy constructor
@@ -20,7 +18,6 @@ public class State {
 	{
 		white = s.white;
 		red = s.red;
-		whiteTurn = s.whiteTurn;
 	}
 	
 	//Copies the state and changes the current player 
@@ -28,9 +25,24 @@ public class State {
 	{
 		State s = new State(this);
 		s.dropAt(col);
-		s.whiteTurn = !whiteTurn;
 		
 		return s;
+	}
+	
+	public Player nextPlayer()
+	{
+		if(Long.bitCount(white) == Long.bitCount(red))
+			return Player.WHITE;
+		else
+			return Player.RED;
+	}
+	
+	public int turnCount(Player p)
+	{
+		if(p == Player.WHITE)
+			return (int)Long.bitCount(white);
+		else
+			return (int)Long.bitCount(red);
 	}
 	
 	//Add a disk to the game board for the given player in the given column
@@ -46,7 +58,7 @@ public class State {
 			mask = mask << WIDTH;
 		
 		//Add to the given players bitmask
-		if(whiteTurn)
+		if(nextPlayer() == Player.WHITE)
 			white |= mask;
 		else
 			red |= mask;
