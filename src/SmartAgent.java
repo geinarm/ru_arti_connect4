@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Random;
 
 public class SmartAgent implements Agent
 {
@@ -108,22 +107,22 @@ public class SmartAgent implements Agent
 				Player p = state.getPlayerAt(c, r);
 				
 				if(p == role){
-					maxRowLength = Math.max(maxRowLength, state.countAdjacent(c, r, 1, 0));
-					maxRowLength = Math.max(maxRowLength, state.countAdjacent(c, r, 0, 1));
-					maxRowLength = Math.max(maxRowLength, state.countAdjacent(c, r, 1, 1));
-					maxRowLength = Math.max(maxRowLength, state.countAdjacent(c, r, 1, -1));
-					if(maxRowLength >= 4){
+					maxRowLength += state.countAdjacent(c, r, 1, 0);
+					maxRowLength += state.countAdjacent(c, r, 0, 1);
+					maxRowLength += state.countAdjacent(c, r, 1, 1);
+					maxRowLength += state.countAdjacent(c, r, 1, -1);
+					/*if(maxRowLength >= 4){
 						val = 100;
-					}
+					}*/
 				}
 				else if(p != null){
-					minRowLength = Math.max(minRowLength, state.countAdjacent(c, r, 1, 0));
-					minRowLength = Math.max(minRowLength, state.countAdjacent(c, r, 0, 1));
-					minRowLength = Math.max(minRowLength, state.countAdjacent(c, r, 1, 1));
-					minRowLength = Math.max(minRowLength, state.countAdjacent(c, r, 1, -1));
-					if(minRowLength >= 4){
+					minRowLength += state.countAdjacent(c, r, 1, 0);
+					minRowLength += state.countAdjacent(c, r, 0, 1);
+					minRowLength += state.countAdjacent(c, r, 1, 1);
+					minRowLength += state.countAdjacent(c, r, 1, -1);
+					/*if(minRowLength >= 4){
 						val = -100;
-					}
+					}*/
 				}
 			}	
 		}
