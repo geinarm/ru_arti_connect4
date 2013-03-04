@@ -29,6 +29,11 @@ public class State {
 		return s;
 	}
 	
+	public int turnCount()
+	{
+		return (int)Long.bitCount((white|red));
+	}
+	
 	public Player nextPlayer()
 	{
 		if(Long.bitCount(white) == Long.bitCount(red))
